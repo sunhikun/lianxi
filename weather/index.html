@@ -1,0 +1,52 @@
+<html>
+<head>
+	<title></title>
+	<!-- 引入jquery -->
+	<script src='jquery-1.12.4.min.js'></script>
+</head>
+<body>
+	<form>
+		城市 <input type='text' name='city' id='city'>
+	</form>
+</body>
+</html>
+
+<script>
+// 表单验证
+$(function(){
+	// 文本框失焦事件
+	$('#city').on('blur',function(){
+		// 1 验证 判断文本框中是否输入了数据（非空验证）
+		var city=$('#city').val();
+		// $.trim是jQuery函数，其功能是去掉字符串两边的空格；length用来计算字符串或数组的长度
+		if(city=='' || $.trim(city).length==0){
+			alert('文本框不能为空')
+			return;		// 程序不往下走了
+		}
+		// 2 验证 长度
+		if(city.length>30){
+			alert('文本框中数据长度超过30了，不能超过30个字符！');
+			return;
+		}
+		// 3 验证 用户只能输入字母、数字、汉字
+		var reg=/^[A-Za-z0-9\u4e00-\u9fa5]+$/i;
+		if(!reg.test(city)){
+			alert('城市输入有误，只能输入字母、数字或汉字，不能输入特殊字符');
+			return;
+		}
+		//４ 发送ajax请求到后台PHP，在后台PHP程序中调用天气接口
+		$.ajax({
+			url:'process.php',		// 在process.php文件中调用天气接口获取天气信息、入库、入redis、返回天所数据到前台（此文件）
+			type:'get',
+			dataType:'json',
+			data:{'city':city},
+			success:function(data){
+				// 展示图表
+				alert(data)
+			}
+		});
+		//alert(city)
+	})
+});
+
+</script>
