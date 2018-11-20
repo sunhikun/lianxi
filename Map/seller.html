@@ -1,0 +1,159 @@
+{js:areaSelect}
+
+<script src="http://api.map.baidu.com/api?v=2.0&ak=ugkyTppsqCinW4KN4YtLt2y3Oodg8sN7"></script>
+<section class="web">
+	<header class="login_header">
+		<h3>申请加盟商户</h3>
+		<p>加入我们的电商平台，成为我们的供应商，一起共创美好未来</p>
+	</header>
+	<section class="reg_box">
+		<form action="{url:/simple/seller_reg}" method="post" enctype='multipart/form-data' name="sellerForm">
+			<dl>
+				<dt>登陆用户名：</dt>
+				<dd>
+					<input class="input_text" name="seller_name" type="text" value="" pattern="required" alt="用户名不能为空">
+					<span>* 用户名称（必填）</span>
+				</dd>
+			</dl>
+			<dl>
+				<dt>密码：</dt>
+				<dd>
+					<input class="input_text" name="password" type="password" bind='repassword' pattern="required">
+					<span>* 登录密码</span>
+				</dd>
+			</dl>
+			<dl>
+				<dt>确认密码：</dt>
+				<dd>
+					<input class="input_text" name="repassword" type="password" bind='password' pattern="required">
+					<span>* 重复确认密码</span>
+				</dd>
+			</dl>
+			<dl>
+				<dt>商户真实全称：</dt>
+				<dd>
+					<input class="input_text" name="true_name" type="text" value="" pattern="required">
+				</dd>
+			</dl>
+			<dl>
+				<dt>商户资质材料：</dt>
+				<dd>
+					<input type='file' name='paper_img'>
+				</dd>
+			</dl>
+			<dl>
+				<dt>固定电话：</dt>
+				<dd>
+					<input type="text" class="input_text" name="phone" pattern="phone">
+					<span>* 固定电话联系方式，如：010-88888888</span>
+				</dd>
+			</dl>
+			<dl>
+				<dt>手机号码：</dt>
+				<dd>
+					<input type="text" class="input_text" name="mobile" pattern="mobi">
+					<span>* 移动电话联系方式：如：13000000000</span>
+				</dd>
+			</dl>
+			<dl>
+				<dt>邮箱：</dt>
+				<dd>
+					<input type="text" class="input_text" name="email" pattern="email">
+					<span>* 电子邮箱联系方式：如：aircheng@163.com</span>
+				</dd>
+			</dl>
+			<dl>
+				<dt>地区：</dt>
+				<dd>
+					<select class="input_select" name="province" child="city,area" id='province'></select>
+					<select class="input_select" name="city" child="area" id='city'></select>
+					<select class="input_select" name="area" id='area'></select>
+				</dd>
+			</dl>
+			<dl>
+				<dt>详细地址：</dt>
+				<dd>
+					<input class="input_text" name="address" type="text" empty value="">
+				</dd>
+			</dl>
+			<!-- 新增 -->
+			<dl>
+				<dt>地图：</dt>
+				<dd>
+					<div id='map' style='border:1px solid red;width:400px;height:400px;'></div>
+				</dd>
+			</dl>
+
+			<dl>
+				<dt>企业官网：</dt>
+				<dd>
+					<input class="input_text" name="home_url" type="text" pattern="url" empty value="">
+					<span>填写完整的网址，如：http://www.aircheng.com</span>
+				</dd>
+			</dl>
+			<dl>
+				<dt></dt>
+				<dd>
+					<input class="input_submit" type="submit" value="申请加盟">
+				</dd>
+			</dl>
+		</form>
+	</section>
+</section>
+
+
+
+<script>
+var areaInstance = new areaSelect('province');
+areaInstance.init();
+</script>
+
+<script>
+$(function(){
+	// 给地区下拉列表加改变事件
+	$('#area').change(function(){
+		// 1 获取省、市、县的值
+		var province=$('#province option:selected').text();
+		var city=$('#city option:selected').text();
+		var area=$('#area option:selected').text();
+		// console.log(province);
+		// console.log(city);
+		// console.log(area);
+		var address=province+city+area;			// 连接省、市、县
+		console.log(address);
+
+		// 2 通过地理位置（省市县）获取对应的经纬度值
+		var map = new BMap.Map("map");      
+		map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);      
+		// 创建地址解析器实例     
+		var myGeo = new BMap.Geocoder();      
+		// 将地址解析结果显示在地图上，并调整地图视野    
+		myGeo.getPoint(address, function(point){      
+		    if (point) {      
+		        map.centerAndZoom(point, 16);      
+		        map.addOverlay(new BMap.Marker(point));
+		        var lng=point.lng;		// 经度
+		        var lat=point.lat;		// 纬度
+		    }      
+		 }, 
+		province);
+
+	// 3 根据上面获取的经纬度值，显示对应的地图，
+	// 给地图绑定事件（单击事件）,参数e就是事件发生的对象（地图）
+    map.addEventListener("click",function(e){
+    	// 调用geocoder类的getLocation方法获取地理位置信息，e.point————获取单击位置的经纬度坐标
+		var myGeo = new BMap.Geocoder();      
+		// 根据坐标得到地址描述    
+		myGeo.getLocation(e.point, function(result){      
+		    if (result){      
+		    //alert(result.address);      
+			// 将用户单击的地理位置值显示在详细地址文本框中
+			$("input[name='address']").val(result.address);
+		    }      
+		});
+    });
+
+	})
+});
+</script>
+
